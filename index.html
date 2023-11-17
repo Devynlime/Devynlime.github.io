@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Vue Image Switcher</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: rgb(247, 209, 216);
+      }
+      .content-container {
+        display: flex;
+        justify-content: space-between;
+        width: 1000px;
+      }
+
+      .button-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: auto;
+        padding-right: 20%;
+      }
+      .btn {
+        width: 100px;
+      }
+
+      .my-img {
+        width: 300px;
+        height: 300px;
+        margin: auto;
+        padding-left: 10%;
+      }
+      .image-container {
+        position: relative;
+        width: 500px;
+      }
+      @keyframes blink {
+        0% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+
+      .overlay {
+        position: absolute;
+        top: 50%;
+        left: -20%;
+        transform: translate(-50%, -50%);
+        color: #f57d00;
+        font-size: 15px;
+        font-family: 'Comic Sans MS', 'Chalkboard SE', 'Marker Felt', sans-serif;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        animation: blink 1s infinite;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="content-container">
+        <div class="button-container">
+          <img
+            v-on:click="currentImage = 0"
+            src="happy_btn.jpg"
+            alt="happy"
+            class="btn"
+          />
+          <img
+            v-on:click="currentImage = 1"
+            src="basic_btn.jpg"
+            alt="basic"
+            class="btn"
+          />
+          <img
+            v-on:click="currentImage = 2"
+            src="bad_btn.jpg"
+            alt="bad"
+            class="btn"
+          />
+        </div>
+        <div class="image-container">
+          <img
+            v-bind:src="images[currentImage]"
+            alt="Image"
+            class="my-img"
+            style="height: 300px"
+          />
+          <div class="overlay" v-if="currentImage === 0">
+            <p>You look so good today!!</p>
+            <p>Wish you are happy everyday!You are so pretty!!</p>
+            <p>You look so beautiful when you are happy!!</p>
+            <p>Wish you are happy everyday!!</p>
+          </div>
+          <div class="overlay" v-if="currentImage === 1">
+            <p>Cheer up! You can do it!!</p>
+            <p>Do something you've always wanted to do~~</p>
+            <p>It's anothoer greate day!!</p>
+            <p>Come on!!</p>
+          </div>
+          <div class="overlay" v-if="currentImage === 2">
+            <p>Dont care what other people</p>
+            <p>think just be yourself~~</p>
+            <p>You are the best,</p>
+            <p>dont let the outside world after yourself!!</p>
+            <p>have a good sleep~~</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      var app = new Vue({
+        el: '#app',
+        data: {
+          currentImage: 0,
+          images: ['happy.jpg', 'basic.jpg', 'bad.jpg'],
+        },
+      });
+    </script>
+  </body>
+</html>
