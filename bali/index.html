@@ -67,6 +67,22 @@
   .lbl{background:rgba(25,25,25,.85);border:1px solid var(--border);border-radius:6px;color:#fff;
     font-size:12px;padding:2px 6px;white-space:nowrap;box-shadow:none}
   .lbl.star{background:var(--orange);color:#10202f;border-color:var(--orange);font-weight:700}
+  .mkw{background:none;border:0}
+  .mk{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:15px;line-height:1;border:2px solid #191919;box-shadow:0 2px 6px rgba(0,0,0,.55)}
+  .mk.star{width:36px;height:36px;font-size:19px;border-color:#fff;
+    box-shadow:0 0 0 4px rgba(233,115,102,.35),0 2px 6px rgba(0,0,0,.55)}
+  .pop b{font-size:14.5px;display:block;margin-top:2px}
+  .pop .pt{font-size:11px;color:var(--text3);display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .pop .dchip{font-style:normal;font-size:10.5px;border:1px solid var(--border);border-radius:4px;padding:0 4px;color:var(--text2)}
+  .pop p{margin:6px 0 0;color:var(--text2);font-size:12.5px}
+  .pop ul{margin:7px 0 0;padding-left:16px;color:var(--text3);font-size:12px}
+  .pop li{margin:2px 0}
+  .pop a{display:inline-block;margin-top:9px;font-size:12px}
+  #legend{display:flex;flex-wrap:wrap;gap:6px}
+  .lg{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);
+    border:1px solid var(--border);border-radius:999px;padding:3px 9px 3px 4px}
+  .lg em{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-style:normal}
   @media (max-width:900px){
     #app{flex-direction:column;height:auto}
     #map{height:52vh;min-height:320px}
@@ -87,34 +103,88 @@
     <div id="dayhead"></div>
     <div id="timeline"></div>
 
+    <div class="ttl">图例</div>
+    <div id="legend"></div>
+
     <div class="ttl">底图源</div>
     <div class="row" id="sources"></div>
-    <div class="hint">点击左侧任一行程可在地图定位到该地点；带「导航」的条目可直接跳转 Google 地图。虚线＝快船航段，实线＝陆路示意（非导航实路径）。</div>
+    <div class="hint">点击地图标记可看地点简介与提醒；点击左侧任一行程可在地图定位到该地点；带「导航」的条目可直接跳转 Google 地图。虚线＝快船航段，实线＝陆路示意（非导航实路径）。</div>
   </div>
 </div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+var TY={
+ airport:{i:"✈️",c:"#5E9FE8",l:"机场"},
+ hotel:{i:"🏨",c:"#72BC8F",l:"住宿"},
+ port:{i:"⛴️",c:"#4FB9C9",l:"码头"},
+ beach:{i:"🏖️",c:"#EAC26B",l:"海滩"},
+ view:{i:"📷",c:"#BF8EDA",l:"景点"},
+ food:{i:"🍽️",c:"#DE9255",l:"餐厅"},
+ shop:{i:"🛍️",c:"#DF84A8",l:"购物/SPA"},
+ play:{i:"🏄",c:"#4FB9C9",l:"活动"},
+ wedding:{i:"💒",c:"#E97366",l:"婚礼"}
+};
 var P={
- dps:{ll:[-8.7482,115.1672],name:"DPS 伍拉赖国际机场"},
- canggu:{ll:[-8.6478,115.1385],name:"仓古 Haus Flora by GRÜN"},
- labrisa:{ll:[-8.6538,115.1265],name:"La Brisa 仓库集市"},
- batubolong:{ll:[-8.6558,115.1300],name:"Batu Bolong 海滩"},
- kuta:{ll:[-8.7180,115.1686],name:"库塔海滩（冲浪课）"},
- seminyak:{ll:[-8.6905,115.1683],name:"水明漾 Seminyak"},
- timbis:{ll:[-8.8478,115.1855],name:"Timbis 滑翔伞点"},
- melasti:{ll:[-8.8481,115.1626],name:"Melasti Beach"},
- malini:{ll:[-8.8286,115.0870],name:"Malini 悬崖餐厅"},
- uluwatu:{ll:[-8.8291,115.0849],name:"乌鲁瓦图神庙（Kecak 火舞）"},
- sanur:{ll:[-8.6862,115.2626],name:"Sanur 快船码头"},
- toyapakeh:{ll:[-8.6810,115.4740],name:"Toya Pakeh 码头（佩尼达）"},
- manta:{ll:[-8.7955,115.4855],name:"Manta Point 浮潜点"},
- kling:{ll:[-8.7515,115.4726],name:"精灵坠崖 Kelingking"},
- billabong:{ll:[-8.7223,115.4477],name:"天使浴池 / 破碎沙滩"},
- jimbaran:{ll:[-8.7906,115.1668],name:"金巴兰 Jimbaran ★婚礼",star:1},
- ubud:{ll:[-8.5069,115.2625],name:"乌布酒店 / 皇宫区"},
- atv:{ll:[-8.4795,115.2360],name:"乌布 ATV 越野"},
- yoga:{ll:[-8.5170,115.2653],name:"The Yoga Barn"},
- celuk:{ll:[-8.5836,115.2711],name:"Celuk 银饰村（DIY）"}
+ dps:{ll:[-8.7482,115.1672],ty:"airport",name:"DPS 伍拉赖国际机场",
+  sum:"巴厘岛唯一的国际机场，位于库塔南侧。去程 9/27 07:20 抵达，回程 10/4 19:50 起飞。",
+  tips:["过关＋取行李约 1 小时","机场→仓古 1–1.5h，乌布→机场 1.5–2h","落地可买电话卡、换零钱","国际航班建议提前 2 小时到"]},
+ canggu:{ll:[-8.6478,115.1385],ty:"hotel",name:"仓古 Haus Flora by GRÜN",
+  sum:"9/27–9/30 住 3 晚的民宿，位于仓古咖啡店与冲浪店集中的区域。",
+  tips:["一般下午才能入住，上午可先寄存行李","退房通常 10:00–11:00","周边餐饮密集，夜间叫车方便"]},
+ labrisa:{ll:[-8.6538,115.1265],ty:"food",name:"La Brisa 仓库集市",
+  sum:"仓古海边的回收木风格餐厅，周末有手作/集市，9/27 正好是周日。",
+  tips:["中午前到人少，日落时段最挤","可直接在内用餐，人均中等","入场有时收少额门票"]},
+ batubolong:{ll:[-8.6558,115.1300],ty:"beach",name:"Batu Bolong 海滩",
+  sum:"仓古主海滩（含 Echo Beach 一带），日落与海边晚餐的首选。",
+  tips:["黑沙滩、浪大，注意暗流","日落前 1 小时到占位","沙滩酒吧多，可边看海边吃"]},
+ kuta:{ll:[-8.7180,115.1686],ty:"play",name:"库塔海滩（冲浪课）",
+  sum:"浪型平缓、沙底平整，是新手冲浪入门的经典海滩。",
+  tips:["上午浪小，更适合新手","含板＋教练约 2 小时，建议预约","贵重物品不要留在沙滩上"]},
+ seminyak:{ll:[-8.6905,115.1683],ty:"shop",name:"水明漾 Seminyak",
+  sum:"设计小店、买手店与 SPA 集中区，Fineline、Saint Tropéz 都在这一带。",
+  tips:["店铺多 10:00 后开门","SPA 建议提前一天预约","傍晚主干道堵车，预留时间"]},
+ timbis:{ll:[-8.8478,115.1855],ty:"play",name:"Timbis 滑翔伞点",
+  sum:"岛南悬崖起飞场（Riug 等侣飞），沿着海崖飞行，景色开阔。",
+  tips:["飞行约 10 分钟，含集合等待需 1.5–2 小时","风力不足/过大会改期，留机动时间","不建议穿裙子，带鱼眼相机绑带"]},
+ melasti:{ll:[-8.8481,115.1626],ty:"beach",name:"Melasti Beach",
+  sum:"从悬崖切开一条盘山路下到的白沙滩，玻璃海、适合游泳拍照。",
+  tips:["上午到水最清、人最少","有停车费与少量遮阳位","注意碎浪，不要游太远"]},
+ malini:{ll:[-8.8286,115.0870],ty:"food",name:"Malini 悬崖餐厅",
+  sum:"情人崖附近的海景餐厅，适合下午茶或日落前晚餐。",
+  tips:["日落景观位建议提前预订","人均中高，风大建议带件外套","从 Melasti 车程约 30 分钟"]},
+ uluwatu:{ll:[-8.8291,115.0849],ty:"view",name:"乌鲁瓦图神庙（Kecak 火舞）",
+  sum:"建在悬崖上的神庙（情人崖），日落时段在室外剧场上演 Kecak 火舞。",
+  tips:["火舞约 18:00 开演，提前 40 分钟取票占位","入内需围沙笼（现场提供）","小心猴子抢眼镜、手机"]},
+ sanur:{ll:[-8.6862,115.2626],ty:"port",name:"Sanur 快船码头",
+  sum:"去佩尼达岛的主要出发码头；9/30–10/2 住在附近方便早船。",
+  tips:["提前 30 分钟到换登船牌","上岛费约 25k 印尼盾/人，现金","末班船通常 16:30–17:30，订票时确认"]},
+ toyapakeh:{ll:[-8.6810,115.4740],ty:"port",name:"Toya Pakeh 码头（佩尼达）",
+  sum:"佩尼达岛主要上岛码头（含三宝湾），浮潜船与包车都在这里集合。",
+  tips:["Sanur 过来快船约 40 分钟","上岸后直接出海最省时","码头附近有 warung 可午餐、冲淡水"]},
+ manta:{ll:[-8.7955,115.4855],ty:"play",name:"Manta Point 浮潜点",
+  sum:"佩尼达南岸的魔鬼鱼（蝠鲼）清洁站，5–10 月遇见概率高。",
+  tips:["【核心】上午场与快船时间要衔接","涌浪大，晕船药提前 30 分钟服用","不要触碰魔鬼鱼，保持 3 米距离","可加 Gamat Bay / 水晶湾"]},
+ kling:{ll:[-8.7515,115.4726],ty:"view",name:"精灵坠崖 Kelingking",
+  sum:"形似霸王龙的海崖观景台，佩尼达西线地标。",
+  tips:["【核心】下午光线好，左侧石堆机位人少","下沙滩上下约 2–3 小时，当天往返不建议","岛上路况颠簸，优先包车/越野车"]},
+ billabong:{ll:[-8.7223,115.4477],ty:"view",name:"天使浴池 / 破碎沙滩",
+  sum:"西线机动项：岩石天然泳池＋拱形海蚀崖，两者步行可达。",
+  tips:["涨潮/浪大时禁止下水","与精灵坠崖车程约 20 分钟","时间紧可直接舍弃"]},
+ jimbaran:{ll:[-8.7906,115.1668],ty:"wedding",name:"金巴兰 Jimbaran ★婚礼",star:1,
+  sum:"10/2 下午朋友婚礼所在地（固定行程），同时是海鲜烧烤一条街。",
+  tips:["待确认：具体场地、到场时间、着装要求","海边婚礼多为半正式，鞋子选平底/坡跟","Sanur→金巴兰 1–1.5h；金巴兰→乌布夜间 1.5–2h","行李随车，包车包到底含等候"]},
+ ubud:{ll:[-8.5069,115.2625],ty:"hotel",name:"乌布酒店 / 皇宫区",
+  sum:"10/2–10/4 住两晚（已订）；周边是皇宫、传统市集与咖啡集中区。",
+  tips:["10/2 夜到，提前告知 late check-in（约 22:00–23:00）","市集上午更热闹，需议价","乌布中心堵车严重，短途建议步行"]},
+ atv:{ll:[-8.4795,115.2360],ty:"play",name:"乌布 ATV 越野",
+  sum:"稻田与丛林间的 ATV 半天团，部分线路含山洞穿越。",
+  tips:["会溅一身泥，带换洗衣物与拖鞋","需预约，通常含酒店接送","可选双人车，无驾照也能玩"]},
+ yoga:{ll:[-8.5170,115.2653],ty:"play",name:"The Yoga Barn",
+  sum:"乌布最知名的瑜伽与音疗中心，可单次付费参加晨课。",
+  tips:["晨课约 07:00–9:00，当天看课表","音疗场次少，建议提前订","内部有健康餐厅可吃早餐"]},
+ celuk:{ll:[-8.5836,115.2711],ty:"shop",name:"Celuk 银饰村（DIY）",
+  sum:"传统银匠村，可体验亲手做银戒/吊饰，成品当场带走。",
+  tips:["体验约 2–3 小时，需预约","位于乌布→机场的顺路方向","店家很多，提前选好带教学的工作室"]}
 };
 var DAYS=[
  {n:1,d:"9/27 周日",c:"#5E9FE8",t:"抵达 + 仓古",note:"凌晨航班后第一天，不排满",
@@ -264,7 +334,7 @@ function selectDay(n,fit){
   for(i=0;i<keys.length;i++)lls.push(P[keys[i]].ll);
   for(var key in state.markers){
     var mk=state.markers[key],act=keys.indexOf(key)>=0;
-    mk.setStyle({fillOpacity:act?1:.28,opacity:act?1:.35});
+    if(mk.setOpacity)mk.setOpacity(act?1:.4);
     var tip=mk.getTooltip();if(tip)tip.getElement()&&(tip.getElement().style.opacity=act?1:.35);
   }
   if(fit&&lls.length)state.map.fitBounds(L.latLngBounds(lls).pad(.25),{animate:true});
@@ -285,11 +355,28 @@ function buildMap(){
     if(l.boat)o.dashArray="8 8";
     L.polyline(lls,o).bindTooltip("D"+day.n+" "+day.d+" · "+day.t,{sticky:true}).addTo(state.groups[l.d]);
   }
+  var DMAP={};
+  for(i=0;i<DAYS.length;i++){
+    var dd=DAYS[i];
+    for(var q=0;q<dd.items.length;q++){
+      var kk=dd.items[q].k;if(!kk)continue;
+      if(!DMAP[kk])DMAP[kk]=[];
+      if(DMAP[kk].indexOf(dd.n)<0)DMAP[kk].push(dd.n);
+    }
+  }
   for(var key in P){
-    var p=P[key];
-    var m=L.circleMarker(p.ll,{radius:p.star?9:6,color:"#191919",weight:2,
-      fillColor:p.star?"#DE9255":"#fff",fillOpacity:1}).addTo(map);
-    m.bindPopup("<b>"+esc(p.name)+'</b><br><a target="_blank" rel="noopener" href="'+gmap(p)+'">在 Google 地图打开 ↗</a>');
+    var p=P[key],ty=TY[p.ty]||TY.view,sz=p.star?36:28;
+    var ic=L.divIcon({className:"mkw",iconSize:[sz,sz],iconAnchor:[sz/2,sz/2],popupAnchor:[0,-sz/2],
+      html:'<div class="mk'+(p.star?" star":"")+'" style="background:'+ty.c+'">'+ty.i+"</div>"});
+    var m=L.marker(p.ll,{icon:ic,riseOnHover:true}).addTo(map);
+    var ds=DMAP[key]||[],dh="";
+    for(var z=0;z<ds.length;z++)dh+='<i class="dchip">D'+ds[z]+"</i>";
+    var th="";
+    if(p.tips)for(var y=0;y<p.tips.length;y++)th+="<li>"+esc(p.tips[y])+"</li>";
+    p.pop='<div class="pop"><div class="pt"><span style="color:'+ty.c+'">'+ty.i+" "+ty.l+"</span>"+dh+
+      "</div><b>"+esc(p.name)+"</b><p>"+esc(p.sum||"")+"</p>"+(th?"<ul>"+th+"</ul>":"")+
+      '<a target="_blank" rel="noopener" href="'+gmap(p)+'">在 Google 地图打开 ↗</a></div>';
+    m.bindPopup(p.pop,{maxWidth:280,minWidth:230});
     m.bindTooltip(p.name,{permanent:true,direction:"right",offset:[8,0],className:p.star?"lbl star":"lbl"});
     state.markers[key]=m;
   }
@@ -315,8 +402,13 @@ function buildMap(){
   setSrc(0,0);
   selectDay(1,1);
 }
+function buildLegend(){
+  var h="",k;
+  for(k in TY)h+='<span class="lg"><em style="background:'+TY[k].c+'">'+TY[k].i+"</em>"+TY[k].l+"</span>";
+  document.getElementById("legend").innerHTML=h;
+}
 function start(){
-  try{buildTabs();selectDay(1,0)}catch(e){}
+  try{buildTabs();selectDay(1,0);buildLegend()}catch(e){}
   try{buildMap()}catch(e){
     var st=document.getElementById("status");st.style.display="block";st.textContent="地图初始化出错："+e.message;}
 }
