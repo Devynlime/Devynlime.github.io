@@ -88,12 +88,13 @@ var LEGS=[
  {d:7,pts:["ubud","atv","ubud"],boat:0},
  {d:8,pts:["ubud","dps"],boat:0}
 ];
+var AMAP_HOST="https://wprd0"+"{s}"+".is.autonavi.com/appmaptile";
 var SRC=[
- {name:"高德地图",url:"https://wprd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&style=7&x={x}&y={y}&z={z}",sub:"1234",max:18,attr:"高德地图"},
- {name:"高德卫星",url:"https://wprd0{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}",sub:"1234",max:18,attr:"高德地图"},
- {name:"Esri 卫星",url:"https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",sub:"abc",max:18,attr:"Esri"},
- {name:"Carto",url:"https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png",sub:"abcd",max:19,attr:"CARTO / OSM"},
- {name:"OpenStreetMap",url:"https://tile.openstreetmap.org/{z}/{x}/{y}.png",sub:"abc",max:18,attr:"OpenStreetMap"}
+ {name:"高德地图",url:AMAP_HOST+"?lang=zh_cn&size=1&style=7&x={x}&y={y}&z={z}",sub:"1234",max:18,attr:"高德地图"},
+ {name:"高德卫星",url:AMAP_HOST+"?style=6&x={x}&y={y}&z={z}",sub:"1234",max:18,attr:"高德地图"},
+ {name:"Esri 卫星",url:"https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/"+"{z}/{y}/{x}",sub:"abc",max:18,attr:"Esri"},
+ {name:"Carto",url:"https://"+"{s}"+".basemaps.cartocdn.com/rastertiles/voyager/"+"{z}/{x}/{y}"+".png",sub:"abcd",max:19,attr:"CARTO / OSM"},
+ {name:"OpenStreetMap",url:"https://tile.openstreetmap.org/"+"{z}/{x}/{y}"+".png",sub:"abc",max:18,attr:"OpenStreetMap"}
 ];
 
 // ---------- 1) 先把侧边栏画出来（不依赖地图库）----------
