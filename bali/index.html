@@ -3,144 +3,296 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>巴厘岛 8 天路线地图 · 2026/9/27–10/4</title>
+<title>巴厘岛 8 天行程地图 · 2026/9/27–10/4</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
-  html,body{margin:0;height:100%;font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;background:#0f1720;color:#e8eef3}
-  #app{display:flex;height:100vh;min-height:540px}
-  #map{flex:1 1 auto;height:100%;background:#0d2233;position:relative}
-  #side{flex:0 0 330px;overflow-y:auto;background:#16212c;border-left:1px solid #2b3d4c;padding:14px 16px}
-  h1{font-size:16px;margin:0 0 4px}
-  .sub{color:#9fb0bd;font-size:12px;margin-bottom:10px;line-height:1.5}
-  .row{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
-  .src{font-size:11.5px;padding:3px 9px;border-radius:999px;border:1px solid #2b3d4c;background:#1b2836;color:#cfe0ec;cursor:pointer}
-  .src.on{background:#4cc9f0;border-color:#4cc9f0;color:#08131b;font-weight:700}
-  .ttl{font-size:11.5px;color:#7f8f9c;letter-spacing:1px;margin:12px 0 6px}
-  .day{border-left:3px solid #666;padding:7px 8px 7px 10px;margin-bottom:6px;cursor:pointer;
-    border-radius:0 8px 8px 0;background:#1a2632}
-  .day:hover{background:#22323f}
-  .day.off{opacity:.4}
-  .day b{font-size:13px;display:block}
-  .day span{display:block;color:#9fb0bd;font-size:12px;margin-top:3px;line-height:1.45}
-  .pill{display:inline-block;font-size:11px;padding:1px 7px;border-radius:999px;color:#0b1319;font-weight:700;margin-right:6px}
-  .tag{display:inline-block;font-size:11px;border:1px solid #2b3d4c;color:#9fb0bd;border-radius:6px;padding:1px 6px;margin:4px 4px 0 0}
-  .hint{color:#7f8f9c;font-size:11px;margin-top:10px;line-height:1.55}
-  #status{position:absolute;left:12px;top:12px;z-index:600;background:#0b1319e6;border:1px solid #2b3d4c;
-    border-radius:8px;padding:6px 10px;font-size:12px;color:#ffd166;display:none;max-width:70%}
-  .leaflet-popup-content{font-size:13px;line-height:1.5;margin:10px 12px}
-  .lbl{background:rgba(11,19,25,.82);border:1px solid #2b3d4c;border-radius:6px;color:#e8eef3;
-    font-size:12px;padding:1px 6px;white-space:nowrap;box-shadow:none}
-  .lbl.wed{background:#ffd166;color:#0b1319;border-color:#ffd166;font-weight:700}
-  @media (max-width:860px){#app{flex-direction:column;height:auto}#side{flex:0 0 auto;border-left:0;border-top:1px solid #2b3d4c}#map{height:56vh;min-height:340px}}
+  :root{
+    --canvas:#191919; --surface:#202020; --raised:#383836;
+    --text:#fff; --text2:rgba(255,255,255,.65); --text3:rgba(255,255,255,.45);
+    --border:rgba(255,255,255,.20); --blue:#5E9FE8; --green:#72BC8F; --orange:#DE9255;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--canvas);color:var(--text);
+    font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,-apple-system,sans-serif;
+    font-size:16px;line-height:1.5}
+  #app{display:flex;height:100vh;min-height:560px}
+  #map{flex:1 1 auto;height:100%;background:#12212c;position:relative}
+  #side{flex:0 0 400px;max-width:400px;height:100%;overflow-y:auto;background:var(--surface);
+    border-left:1px solid var(--border);padding:24px 20px 32px}
+  h1{font-size:20px;line-height:1.3;margin:0 0 6px}
+  .sub{color:var(--text2);font-size:14px;margin-bottom:20px}
+  .ttl{font-size:12px;color:var(--text3);letter-spacing:.12em;margin:24px 0 8px;text-transform:uppercase}
+  #tabs{display:flex;flex-wrap:wrap;gap:8px}
+  .tab{min-height:44px;padding:8px 12px;border-radius:8px;border:1px solid var(--border);
+    background:transparent;color:var(--text2);font-size:14px;cursor:pointer;font-family:inherit;
+    display:flex;flex-direction:column;align-items:flex-start;gap:2px;line-height:1.2}
+  .tab .dt{font-size:11px;color:var(--text3)}
+  .tab:hover{background:var(--raised)}
+  .tab:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+  .tab.on{background:var(--blue);border-color:var(--blue);color:#10202f;font-weight:700}
+  .tab.on .dt{color:#10202f;opacity:.75}
+  #dayhead{margin:20px 0 12px;padding:14px 16px;border:1px solid var(--border);border-radius:12px;
+    background:rgba(94,159,232,.10)}
+  #dayhead b{display:block;font-size:16px;margin-bottom:4px}
+  #dayhead span{color:var(--text2);font-size:13px}
+  .item{display:grid;grid-template-columns:74px 1fr;gap:12px;width:100%;text-align:left;
+    min-height:44px;padding:12px 12px 12px 10px;border:0;border-radius:10px;background:transparent;
+    color:var(--text);font-family:inherit;font-size:14px;cursor:pointer;position:relative}
+  .item + .item{margin-top:2px}
+  .item:hover{background:var(--raised)}
+  .item:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+  .item.on{background:rgba(94,159,232,.16);box-shadow:inset 3px 0 0 var(--blue)}
+  .item.nogo{cursor:default}
+  .item.nogo:hover{background:transparent}
+  .tm{color:var(--blue);font-size:12.5px;font-variant-numeric:tabular-nums;padding-top:2px;font-weight:600}
+  .it b{display:block;font-size:14.5px;font-weight:600;margin-bottom:3px}
+  .it p{margin:0;color:var(--text2);font-size:13px}
+  .pin{display:block;color:var(--text3);font-size:12px;font-weight:400;margin-top:3px}
+  .star{color:var(--orange)}
+  .nav{display:inline-flex;align-items:center;gap:4px;margin-top:7px;font-size:12px;
+    color:var(--blue);text-decoration:none;border:1px solid var(--border);border-radius:6px;padding:4px 8px}
+  .nav:hover{background:var(--raised)}
+  .src{min-height:36px;font-size:12.5px;padding:6px 12px;border-radius:999px;border:1px solid var(--border);
+    background:transparent;color:var(--text2);cursor:pointer;font-family:inherit}
+  .src.on{background:var(--blue);border-color:var(--blue);color:#10202f;font-weight:700}
+  .row{display:flex;gap:8px;flex-wrap:wrap}
+  .hint{color:var(--text3);font-size:12px;margin-top:12px}
+  #status{position:absolute;left:16px;top:16px;z-index:600;background:rgba(25,25,25,.92);
+    border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--orange);
+    display:none;max-width:70%}
+  .leaflet-popup-content-wrapper{background:#202020;color:#fff;border-radius:10px}
+  .leaflet-popup-tip{background:#202020}
+  .leaflet-popup-content{font-size:13px;line-height:1.55;margin:12px 14px}
+  .leaflet-popup-content a{color:var(--blue)}
+  .lbl{background:rgba(25,25,25,.85);border:1px solid var(--border);border-radius:6px;color:#fff;
+    font-size:12px;padding:2px 6px;white-space:nowrap;box-shadow:none}
+  .lbl.star{background:var(--orange);color:#10202f;border-color:var(--orange);font-weight:700}
+  @media (max-width:900px){
+    #app{flex-direction:column;height:auto}
+    #map{height:52vh;min-height:320px}
+    #side{flex:0 0 auto;max-width:none;width:100%;height:auto;border-left:0;border-top:1px solid var(--border);padding:20px 16px 32px}
+  }
 </style>
 </head>
 <body>
 <div id="app">
   <div id="map"><div id="status"></div></div>
   <div id="side">
-    <h1>🗺️ 巴厘岛 8 天路线</h1>
-    <div class="sub">2026/9/27 – 10/4 · 翎亚航空 8B968 / 8B969<br />住宿：仓古 3 晚 → Sanur 2 晚 → 乌布 2 晚</div>
+    <h1>巴厘岛 8 天行程</h1>
+    <div class="sub">2026/9/27 – 10/4 · 翎亚 8B968 / 8B969<br />仓古 3 晚 → Sanur 2 晚 → 乌布 2 晚</div>
+
+    <div class="ttl">选择日期</div>
+    <div id="tabs"></div>
+
+    <div id="dayhead"></div>
+    <div id="timeline"></div>
+
     <div class="ttl">底图源</div>
     <div class="row" id="sources"></div>
-    <div class="ttl">每日行程（点击可单独显示 / 隐藏）</div>
-    <div id="legend"></div>
-    <div id="tags"></div>
-    <div class="hint">虚线＝快船航段，实线＝陆路（直连示意，非导航实路径）。点击地图标记可看详情；底图加载失败会自动换源。</div>
+    <div class="hint">点击左侧任一行程可在地图定位到该地点；带「导航」的条目可直接跳转 Google 地图。虚线＝快船航段，实线＝陆路示意（非导航实路径）。</div>
   </div>
 </div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-var DAYS=[
- {n:1,d:"9/27 周日",c:"#4cc9f0",t:"抵达 + 仓古",s:"07:20 落地 DPS → 仓古寄存行李 → La Brisa 集市 → 海边日落"},
- {n:2,d:"9/28 周一",c:"#4895ef",t:"仓古 / 水明漾",s:"上午冲浪课 → 下午水明漾 shopping → 晚上 SPA"},
- {n:3,d:"9/29 周二",c:"#4361ee",t:"乌鲁瓦图 + 南部",s:"滑翔伞 → Melasti Beach → Malini 悬崖餐厅 → Kecak 火舞"},
- {n:4,d:"9/30 周三",c:"#b5179e",t:"仓古 → Sanur",s:"退房转场码头区，踩点确认次日快船，早睡"},
- {n:5,d:"10/1 周四",c:"#f72585",t:"佩尼达一日往返",s:"07:30 快船 → Manta Point 魔鬼鱼浮潜 → 精灵坠崖 → 17:00 回 Sanur"},
- {n:6,d:"10/2 周五",c:"#ffd166",t:"Sanur → 金巴兰（婚礼）",s:"上午转场金巴兰 → ★下午朋友婚礼（固定）→ 晚宴 → 夜车回乌布"},
- {n:7,d:"10/3 周六",c:"#06d6a0",t:"乌布全天",s:"睡饱 → ATV 越野 → 银饰 DIY / 乌布漫游 → SPA 或音疗"},
- {n:8,d:"10/4 周日",c:"#ff9f1c",t:"乌布 → 回程",s:"咖啡店 + 伴手礼 → 16:30 出发 DPS → 19:50 起飞"}
-];
 var P={
- dps:{ll:[-8.7482,115.1672],name:"DPS 伍拉赖国际机场",info:"9/27 07:20 抵达｜10/4 19:50 起飞"},
- canggu:{ll:[-8.6478,115.1385],name:"仓古 Canggu",info:"9/27–9/30 住宿（Haus Flora by GRUN）"},
- labrisa:{ll:[-8.6538,115.1265],name:"La Brisa 仓库集市",info:"D1 中午，9/27 周日有集市"},
- seminyak:{ll:[-8.6905,115.1683],name:"水明漾 Seminyak",info:"D2 下午 shopping"},
- uluwatu:{ll:[-8.8291,115.0849],name:"乌鲁瓦图 Uluwatu",info:"D3 晚：Kecak 火舞 / 情人崖日落"},
- melasti:{ll:[-8.8481,115.1626],name:"Melasti Beach",info:"D3 中午：玻璃海 + 白沙滩"},
- jimbaran:{ll:[-8.7906,115.1668],name:"金巴兰 Jimbaran ★婚礼",info:"<b>10/2 下午：朋友婚礼（固定行程）</b><br>晚上婚宴 / 海边海鲜，之后夜车回乌布",wed:1},
- sanur:{ll:[-8.6862,115.2626],name:"Sanur 快船码头",info:"9/30–10/2 住宿｜10/1 佩尼达上下船"},
- manta:{ll:[-8.7955,115.4855],name:"Manta Point",info:"D5 上午：魔鬼鱼浮潜"},
- kling:{ll:[-8.7515,115.4726],name:"精灵坠崖 Kelingking",info:"D5 下午：观景台"},
- toyapakeh:{ll:[-8.6810,115.4740],name:"Toya Pakeh 码头",info:"佩尼达上岛点，快船约 40 分钟"},
- ubud:{ll:[-8.5069,115.2625],name:"乌布 Ubud",info:"10/2–10/4 住宿（已预订两晚）"},
- atv:{ll:[-8.4795,115.2360],name:"乌布 ATV 区域",info:"D7 上午：半天团，需预约"}
+ dps:{ll:[-8.7482,115.1672],name:"DPS 伍拉赖国际机场"},
+ canggu:{ll:[-8.6478,115.1385],name:"仓古 Haus Flora by GRÜN"},
+ labrisa:{ll:[-8.6538,115.1265],name:"La Brisa 仓库集市"},
+ batubolong:{ll:[-8.6558,115.1300],name:"Batu Bolong 海滩"},
+ kuta:{ll:[-8.7180,115.1686],name:"库塔海滩（冲浪课）"},
+ seminyak:{ll:[-8.6905,115.1683],name:"水明漾 Seminyak"},
+ timbis:{ll:[-8.8478,115.1855],name:"Timbis 滑翔伞点"},
+ melasti:{ll:[-8.8481,115.1626],name:"Melasti Beach"},
+ malini:{ll:[-8.8286,115.0870],name:"Malini 悬崖餐厅"},
+ uluwatu:{ll:[-8.8291,115.0849],name:"乌鲁瓦图神庙（Kecak 火舞）"},
+ sanur:{ll:[-8.6862,115.2626],name:"Sanur 快船码头"},
+ toyapakeh:{ll:[-8.6810,115.4740],name:"Toya Pakeh 码头（佩尼达）"},
+ manta:{ll:[-8.7955,115.4855],name:"Manta Point 浮潜点"},
+ kling:{ll:[-8.7515,115.4726],name:"精灵坠崖 Kelingking"},
+ billabong:{ll:[-8.7223,115.4477],name:"天使浴池 / 破碎沙滩"},
+ jimbaran:{ll:[-8.7906,115.1668],name:"金巴兰 Jimbaran ★婚礼",star:1},
+ ubud:{ll:[-8.5069,115.2625],name:"乌布酒店 / 皇宫区"},
+ atv:{ll:[-8.4795,115.2360],name:"乌布 ATV 越野"},
+ yoga:{ll:[-8.5170,115.2653],name:"The Yoga Barn"},
+ celuk:{ll:[-8.5836,115.2711],name:"Celuk 银饰村（DIY）"}
 };
+var DAYS=[
+ {n:1,d:"9/27 周日",c:"#5E9FE8",t:"抵达 + 仓古",note:"凌晨航班后第一天，不排满",
+  items:[
+   {tm:"07:20",k:"dps",t:"抵达 DPS 国际航站楼",s:"过关＋取行李约 1 小时；机场→仓古 1–1.5 小时"},
+   {tm:"上午",k:"canggu",t:"仓古住处寄存行李",s:"民宿多为下午入住；顺便买电话卡、换零钱"},
+   {tm:"中午",k:"labrisa",t:"La Brisa 仓库集市",s:"周末集市，9/27 正好周日"},
+   {tm:"下午",k:"canggu",t:"回民宿休整、泳池",s:"补觉，避开正午暴晒"},
+   {tm:"晚上",k:"batubolong",t:"海边日落 + 晚餐",s:"Batu Bolong / Echo Beach 一带"}
+  ]},
+ {n:2,d:"9/28 周一",c:"#4FB9C9",t:"仓古 / 水明漾",note:"海边活动 + 采购日",
+  items:[
+   {tm:"上午",k:"kuta",t:"冲浪课",s:"新手建议上午浪小时下水，需预约"},
+   {tm:"下午",k:"seminyak",t:"水明漾 Shopping",s:"Fineline、Saint Tropéz 等"},
+   {tm:"晚上",k:"seminyak",t:"SPA / Massage",s:"提前一天预约"}
+  ]},
+ {n:3,d:"9/29 周二",c:"#BF8EDA",t:"乌鲁瓦图 + 南部",note:"南岛一日，建议包车",
+  items:[
+   {tm:"上午",k:"timbis",t:"滑翔伞 Riug",s:"飞行约 10 分钟，需加集合、等待与交通时间"},
+   {tm:"中午",k:"melasti",t:"Melasti Beach",s:"玻璃海 + 白沙滩，适合游泳拍照"},
+   {tm:"傍晚",k:"malini",t:"Malini 悬崖餐厅",s:"情人崖附近，看海景 / 下午茶"},
+   {tm:"晚上",k:"uluwatu",t:"Kecak 火舞 / 情人崖日落",s:"金巴兰海鲜晚餐改到 10/2，避免重复"}
+  ]},
+ {n:4,d:"9/30 周三",c:"#EAC26B",t:"仓古 → Sanur 转场",note:"转场日，为佩尼达做准备",
+  items:[
+   {tm:"上午",k:"canggu",t:"民宿退房 + 慢早餐",s:"退房通常 10:00–11:00"},
+   {tm:"下午",k:"sanur",t:"车程前往码头区酒店",s:"仓古 → Sanur 约 1–1.5 小时，避开晚高峰"},
+   {tm:"傍晚",k:"sanur",t:"码头踩点、确认快船票",s:"确认集合时间与登船口"},
+   {tm:"晚上",t:"早睡",s:"次日佩尼达一日游要早起"}
+  ]},
+ {n:5,d:"10/1 周四",c:"#72BC8F",t:"佩尼达一日往返",note:"核心：Manta Point + 精灵坠崖（西线）",
+  items:[
+   {tm:"06:30",k:"sanur",t:"Sanur 码头集合、换登船牌",s:"提前 30 分钟到；上岛费约 25k 印尼盾/人，现金"},
+   {tm:"07:30",k:"toyapakeh",t:"快船 Sanur → 佩尼达",s:"航程约 40 分钟；晕船药提前 30 分钟服用"},
+   {tm:"08:30",k:"manta",t:"★ Manta Point 浮潜",s:"可加 Gamat Bay / 水晶湾；要求船家与快船时间衔接"},
+   {tm:"11:30",k:"toyapakeh",t:"冲淡水 + 码头午餐",s:"提前与包车司机约好接人时间"},
+   {tm:"13:30",k:"kling",t:"★ 精灵坠崖观景台",s:"下午光线好；当天往返不建议下沙滩"},
+   {tm:"15:00",k:"billabong",t:"机动：天使浴池 + 破碎沙滩",s:"同属西线，车程约 20 分钟，时间紧可舍弃"},
+   {tm:"16:00",k:"toyapakeh",t:"返回码头",s:"预留堵车与洗漱换衣时间"},
+   {tm:"17:00",k:"sanur",t:"快船回 Sanur",s:"末班通常 16:30–17:30，订票时确认"}
+  ]},
+ {n:6,d:"10/2 周五",c:"#DE9255",t:"Sanur → 金巴兰（婚礼）",note:"固定行程：下午朋友婚礼",
+  items:[
+   {tm:"09:30",k:"sanur",t:"退房，包车出发金巴兰",s:"约 1–1.5 小时；行李随车，不先回乌布"},
+   {tm:"中午",k:"jimbaran",t:"金巴兰午餐 + 换装",s:"预留 1–1.5 小时；鞋子选平底或坡跟"},
+   {tm:"下午",k:"jimbaran",t:"★ 朋友婚礼（固定）",s:"待确认场地、到场时间、着装要求"},
+   {tm:"晚上",k:"jimbaran",t:"婚宴 / 海边海鲜晚餐",s:"若婚礼不含晚宴，可就近吃烧烤"},
+   {tm:"21:00",k:"ubud",t:"夜车回乌布酒店",s:"约 1.5–2 小时；提前告知酒店 late check-in"}
+  ]},
+ {n:7,d:"10/3 周六",c:"#DF84A8",t:"乌布全天",note:"前一晚夜车，早上不排团",
+  items:[
+   {tm:"早上",k:"yoga",t:"酒店早餐（可选 Yoga Barn 晨课）",s:"睡饱一点再出发"},
+   {tm:"上午",k:"atv",t:"ATV 越野摩托",s:"半天团，会很脏，带换洗衣物；需预约"},
+   {tm:"下午",k:"celuk",t:"银饰 DIY 或 乌布漫游",s:"银饰约 2–3 小时需预约；或皇宫/市集/稻田"},
+   {tm:"晚上",k:"ubud",t:"SPA 或 音疗",s:"旺季建议提前 3 天预约"}
+  ]},
+ {n:8,d:"10/4 周日",c:"#E97366",t:"乌布 → 回程",note:"全部行程 17:00 前结束",
+  items:[
+   {tm:"上午",k:"ubud",t:"退房，行李寄存酒店",s:"不安排下水 / 远途项目"},
+   {tm:"中午",k:"ubud",t:"乌布咖啡店 + 伴手礼",s:"市集与周边小店"},
+   {tm:"16:30",t:"出发前往 DPS 机场",s:"乌布 → 机场约 1.5–2 小时，晚高峰易堵"},
+   {tm:"17:50",k:"dps",t:"机场值机",s:"国际航班建议提前 2 小时"},
+   {tm:"19:50",k:"dps",t:"8B969 起飞 → 10/5 01:05 广州 T2",s:"提前安排凌晨到广州的交通"}
+  ]}
+];
 var LEGS=[
- {d:1,pts:["dps","canggu","labrisa"],boat:0},
- {d:2,pts:["canggu","seminyak"],boat:0},
- {d:3,pts:["canggu","melasti","uluwatu"],boat:0},
+ {d:1,pts:["dps","canggu","labrisa","batubolong"],boat:0},
+ {d:2,pts:["canggu","kuta","seminyak"],boat:0},
+ {d:3,pts:["canggu","timbis","melasti","uluwatu"],boat:0},
  {d:4,pts:["canggu","seminyak","sanur"],boat:0},
  {d:5,pts:["sanur","toyapakeh"],boat:1},
- {d:5,pts:["toyapakeh","manta","kling","toyapakeh"],boat:0},
+ {d:5,pts:["toyapakeh","manta","kling","billabong","toyapakeh"],boat:0},
  {d:5,pts:["toyapakeh","sanur"],boat:1},
- {d:6,pts:["sanur","jimbaran"],boat:0},
- {d:6,pts:["jimbaran","ubud"],boat:0},
- {d:7,pts:["ubud","atv","ubud"],boat:0},
+ {d:6,pts:["sanur","jimbaran","ubud"],boat:0},
+ {d:7,pts:["ubud","atv","celuk","ubud"],boat:0},
  {d:8,pts:["ubud","dps"],boat:0}
 ];
-var AMAP_HOST="https://wprd0"+"{s}"+".is.autonavi.com/appmaptile";
+var AMAP="https://wprd0"+"{s}"+".is.autonavi.com/appmaptile";
 var SRC=[
- {name:"高德地图",url:AMAP_HOST+"?lang=zh_cn&size=1&style=7&x={x}&y={y}&z={z}",sub:"1234",max:18,attr:"高德地图"},
- {name:"高德卫星",url:AMAP_HOST+"?style=6&x={x}&y={y}&z={z}",sub:"1234",max:18,attr:"高德地图"},
+ {name:"高德地图",url:AMAP+"?lang=zh_cn&size=1&style=7&x={x}&y={y}&z={z}",sub:"1234",max:18,attr:"高德地图"},
+ {name:"高德卫星",url:AMAP+"?style=6&x={x}&y={y}&z={z}",sub:"1234",max:18,attr:"高德地图"},
  {name:"Esri 卫星",url:"https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/"+"{z}/{y}/{x}",sub:"abc",max:18,attr:"Esri"},
  {name:"Carto",url:"https://"+"{s}"+".basemaps.cartocdn.com/rastertiles/voyager/"+"{z}/{x}/{y}"+".png",sub:"abcd",max:19,attr:"CARTO / OSM"},
  {name:"OpenStreetMap",url:"https://tile.openstreetmap.org/"+"{z}/{x}/{y}"+".png",sub:"abc",max:18,attr:"OpenStreetMap"}
 ];
+function gmap(p){return "https://www.google.com/maps/search/?api=1&query="+p.ll[0]+","+p.ll[1]}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")}
 
-// ---------- 1) 先把侧边栏画出来（不依赖地图库）----------
-function buildPanel(){
-  var lg=document.getElementById("legend"),h="",i;
+var state={day:1,markers:{},groups:{},map:null};
+
+function buildTabs(){
+  var h="",i;
   for(i=0;i<DAYS.length;i++){
     var d=DAYS[i];
-    h+='<div class="day" data-d="'+d.n+'" style="border-left-color:'+d.c+'">'+
-       '<b><span class="pill" style="background:'+d.c+'">D'+d.n+'</span>'+d.d+' · '+d.t+'</b>'+
-       '<span>'+d.s+'</span></div>';
+    h+='<button class="tab" data-d="'+d.n+'"><span>D'+d.n+' '+esc(d.t)+'</span><span class="dt">'+esc(d.d)+'</span></button>';
   }
-  lg.innerHTML=h;
-  document.getElementById("tags").innerHTML=
-    '<span class="tag">Sanur→乌布 1–1.5h</span><span class="tag">Sanur→金巴兰 1–1.5h</span>'+
-    '<span class="tag">金巴兰→乌布 1.5–2h</span><span class="tag">乌布→DPS 1.5–2h</span>'+
-    '<span class="tag">快船约 40min</span>';
-  var sh="",j;
-  for(j=0;j<SRC.length;j++)sh+='<button class="src" data-i="'+j+'">'+SRC[j].name+'</button>';
-  document.getElementById("sources").innerHTML=sh;
+  document.getElementById("tabs").innerHTML=h;
+  var b=document.querySelectorAll(".tab"),j;
+  for(j=0;j<b.length;j++)(function(el){
+    el.addEventListener("click",function(){selectDay(+el.getAttribute("data-d"),1)});
+  })(b[j]);
 }
-
-// ---------- 2) 再初始化地图 ----------
+function renderDay(n){
+  var d=DAYS[n-1],i,h="";
+  document.getElementById("dayhead").innerHTML=
+    "<b>Day "+d.n+"｜"+esc(d.d)+" · "+esc(d.t)+"</b><span>"+esc(d.note)+"</span>";
+  for(i=0;i<d.items.length;i++){
+    var it=d.items[i],p=it.k?P[it.k]:null;
+    h+='<div class="item'+(p?"":" nogo")+'" '+(p?'tabindex="0" role="button" data-k="'+it.k+'"':"")+'>'+
+       '<div class="tm">'+esc(it.tm)+'</div><div class="it"><b>'+esc(it.t)+
+       (p?'<span class="pin">📍'+esc(p.name)+"</span>":"")+'</b><p>'+esc(it.s)+"</p>"+
+       (p?'<a class="nav" target="_blank" rel="noopener" href="'+gmap(p)+'">↗ 导航</a>':"")+
+       "</div></div>";
+  }
+  document.getElementById("timeline").innerHTML=h;
+  var els=document.querySelectorAll(".item[data-k]"),j;
+  for(j=0;j<els.length;j++)(function(el){
+    function go(e){
+      if(e.target&&e.target.className==="nav")return;
+      focusPoint(el.getAttribute("data-k"),el);
+    }
+    el.addEventListener("click",go);
+    el.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();go(e)}});
+  })(els[j]);
+}
+function focusPoint(k,el){
+  var cur=document.querySelectorAll(".item.on"),i;
+  for(i=0;i<cur.length;i++)cur[i].className="item";
+  if(el)el.className="item on";
+  var m=state.markers[k];
+  if(!state.map||!m)return;
+  state.map.flyTo(P[k].ll,14,{duration:.7});
+  m.openPopup();
+}
+function selectDay(n,fit){
+  state.day=n;
+  var t=document.querySelectorAll(".tab"),i;
+  for(i=0;i<t.length;i++)t[i].className=(+t[i].getAttribute("data-d")===n)?"tab on":"tab";
+  renderDay(n);
+  if(!state.map)return;
+  for(var d in state.groups){
+    var g=state.groups[d];
+    if(+d===n){if(!state.map.hasLayer(g))state.map.addLayer(g)}
+    else if(state.map.hasLayer(g))state.map.removeLayer(g);
+  }
+  var keys=DAYS[n-1].items.map(function(x){return x.k}).filter(Boolean),lls=[];
+  for(i=0;i<keys.length;i++)lls.push(P[keys[i]].ll);
+  for(var key in state.markers){
+    var mk=state.markers[key],act=keys.indexOf(key)>=0;
+    mk.setStyle({fillOpacity:act?1:.28,opacity:act?1:.35});
+    var tip=mk.getTooltip();if(tip)tip.getElement()&&(tip.getElement().style.opacity=act?1:.35);
+  }
+  if(fit&&lls.length)state.map.fitBounds(L.latLngBounds(lls).pad(.25),{animate:true});
+}
 function buildMap(){
   var st=document.getElementById("status");
   function say(m,keep){st.style.display=m?"block":"none";st.innerHTML=m||"";
     if(m&&!keep)setTimeout(function(){st.style.display="none"},4500)}
-  if(typeof L==="undefined"){say("地图库加载失败（需要联网），右侧行程仍可查看。",1);return}
+  if(typeof L==="undefined"){say("地图库加载失败（需要联网），右侧每日行程仍可查看。",1);return}
   var map=L.map("map",{scrollWheelZoom:true}).setView([-8.65,115.25],10);
-  var groups={},i;
-  for(i=0;i<DAYS.length;i++)groups[DAYS[i].n]=L.layerGroup().addTo(map);
+  state.map=map;
+  var i;
+  for(i=0;i<DAYS.length;i++)state.groups[DAYS[i].n]=L.layerGroup();
   for(i=0;i<LEGS.length;i++){
     var l=LEGS[i],day=DAYS[l.d-1],lls=[],k;
     for(k=0;k<l.pts.length;k++)lls.push(P[l.pts[k]].ll);
     var o={color:day.c,weight:l.boat?3:4,opacity:.95,lineCap:"round"};
     if(l.boat)o.dashArray="8 8";
-    L.polyline(lls,o).bindTooltip("D"+day.n+" "+day.d+" · "+day.t,{sticky:true}).addTo(groups[l.d]);
+    L.polyline(lls,o).bindTooltip("D"+day.n+" "+day.d+" · "+day.t,{sticky:true}).addTo(state.groups[l.d]);
   }
-  var all=[];
   for(var key in P){
-    var p=P[key];all.push(p.ll);
-    var m=L.circleMarker(p.ll,{radius:p.wed?9:6,color:"#0b1319",weight:2,
-      fillColor:p.wed?"#ffd166":"#ffffff",fillOpacity:1}).addTo(map);
-    m.bindPopup("<b>"+p.name+"</b><br>"+p.info);
-    m.bindTooltip(p.name,{permanent:true,direction:"right",offset:[8,0],className:p.wed?"lbl wed":"lbl"});
+    var p=P[key];
+    var m=L.circleMarker(p.ll,{radius:p.star?9:6,color:"#191919",weight:2,
+      fillColor:p.star?"#DE9255":"#fff",fillOpacity:1}).addTo(map);
+    m.bindPopup("<b>"+esc(p.name)+'</b><br><a target="_blank" rel="noopener" href="'+gmap(p)+'">在 Google 地图打开 ↗</a>');
+    m.bindTooltip(p.name,{permanent:true,direction:"right",offset:[8,0],className:p.star?"lbl star":"lbl"});
+    state.markers[key]=m;
   }
-  map.fitBounds(L.latLngBounds(all).pad(0.12));
   var cur=null,timer=null;
   function setSrc(idx,auto){
     if(idx>=SRC.length){say("所有底图源都无法加载，路线与标记仍可使用。",1);return}
@@ -151,32 +303,23 @@ function buildMap(){
     cur.addTo(map);
     clearTimeout(timer);
     timer=setTimeout(function(){if(loaded===0){say("「"+s.name+"」加载失败，自动换下一个底图…");setSrc(idx+1,1)}},6000);
-    var bs=document.querySelectorAll(".src");
-    for(var b=0;b<bs.length;b++)bs[b].className=(+bs[b].getAttribute("data-i")===idx)?"src on":"src";
+    var bs=document.querySelectorAll(".src"),b;
+    for(b=0;b<bs.length;b++)bs[b].className=(+bs[b].getAttribute("data-i")===idx)?"src on":"src";
     if(auto)say("已切换到「"+s.name+"」");
   }
+  var sh="",j;
+  for(j=0;j<SRC.length;j++)sh+='<button class="src" data-i="'+j+'">'+SRC[j].name+"</button>";
+  document.getElementById("sources").innerHTML=sh;
   var btns=document.querySelectorAll(".src");
-  for(i=0;i<btns.length;i++){
-    (function(b){b.addEventListener("click",function(){setSrc(+b.getAttribute("data-i"),0)})})(btns[i]);
-  }
-  var items=document.querySelectorAll(".day");
-  for(i=0;i<items.length;i++){
-    (function(el){
-      el.addEventListener("click",function(){
-        var n=+el.getAttribute("data-d"),g=groups[n];
-        if(map.hasLayer(g)){map.removeLayer(g);el.className="day off"}
-        else{map.addLayer(g);el.className="day";
-          var bb=L.latLngBounds([]);g.eachLayer(function(x){bb.extend(x.getBounds())});
-          if(bb.isValid())map.fitBounds(bb.pad(0.25));}
-      });
-    })(items[i]);
-  }
+  for(i=0;i<btns.length;i++)(function(b){b.addEventListener("click",function(){setSrc(+b.getAttribute("data-i"),0)})})(btns[i]);
   setSrc(0,0);
+  selectDay(1,1);
 }
-function start(){try{buildPanel()}catch(e){}
+function start(){
+  try{buildTabs();selectDay(1,0)}catch(e){}
   try{buildMap()}catch(e){
-    var st=document.getElementById("status");
-    st.style.display="block";st.textContent="地图初始化出错："+e.message;}}
+    var st=document.getElementById("status");st.style.display="block";st.textContent="地图初始化出错："+e.message;}
+}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start);else start();
 </script>
 </body>
