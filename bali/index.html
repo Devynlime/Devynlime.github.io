@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>巴厘岛 8 天路线地图 · 2026/9/27–10/4</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+  html,body{margin:0;height:100%;font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;background:#0f1720;color:#e8eef3}
+  #app{display:flex;height:100vh;min-height:540px}
+  #map{flex:1 1 auto;height:100%;background:#0d2233;position:relative}
+  #side{flex:0 0 330px;overflow-y:auto;background:#16212c;border-left:1px solid #2b3d4c;padding:14px 16px}
+  h1{font-size:16px;margin:0 0 4px}
+  .sub{color:#9fb0bd;font-size:12px;margin-bottom:10px;line-height:1.5}
+  .row{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
+  .src{font-size:11.5px;padding:3px 9px;border-radius:999px;border:1px solid #2b3d4c;background:#1b2836;color:#cfe0ec;cursor:pointer}
+  .src.on{background:#4cc9f0;border-color:#4cc9f0;color:#08131b;font-weight:700}
+  .ttl{font-size:11.5px;color:#7f8f9c;letter-spacing:1px;margin:12px 0 6px}
+  .day{border-left:3px solid #666;padding:7px 8px 7px 10px;margin-bottom:6px;cursor:pointer;
+    border-radius:0 8px 8px 0;background:#1a2632}
+  .day:hover{background:#22323f}
+  .day.off{opacity:.4}
+  .day b{font-size:13px;display:block}
+  .day span{display:block;color:#9fb0bd;font-size:12px;margin-top:3px;line-height:1.45}
+  .pill{display:inline-block;font-size:11px;padding:1px 7px;border-radius:999px;color:#0b1319;font-weight:700;margin-right:6px}
+  .tag{display:inline-block;font-size:11px;border:1px solid #2b3d4c;color:#9fb0bd;border-radius:6px;padding:1px 6px;margin:4px 4px 0 0}
+  .hint{color:#7f8f9c;font-size:11px;margin-top:10px;line-height:1.55}
+  #status{position:absolute;left:12px;top:12px;z-index:600;background:#0b1319e6;border:1px solid #2b3d4c;
+    border-radius:8px;padding:6px 10px;font-size:12px;color:#ffd166;display:none;max-width:70%}
+  .leaflet-popup-content{font-size:13px;line-height:1.5;margin:10px 12px}
+  .lbl{background:rgba(11,19,25,.82);border:1px solid #2b3d4c;border-radius:6px;color:#e8eef3;
+    font-size:12px;padding:1px 6px;white-space:nowrap;box-shadow:none}
+  .lbl.wed{background:#ffd166;color:#0b1319;border-color:#ffd166;font-weight:700}
+  @media (max-width:860px){#app{flex-direction:column;height:auto}#side{flex:0 0 auto;border-left:0;border-top:1px solid #2b3d4c}#map{height:56vh;min-height:340px}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="map"><div id="status"></div></div>
+  <div id="side">
+    <h1>🗺️ 巴厘岛 8 天路线</h1>
+    <div class="sub">2026/9/27 – 10/4 · 翎亚航空 8B968 / 8B969<br />住宿：仓古 3 晚 → Sanur 2 晚 → 乌布 2 晚</div>
+    <div class="ttl">底图源</div>
+    <div class="row" id="sources"></div>
+    <div class="ttl">每日行程（点击可单独显示 / 隐藏）</div>
+    <div id="legend"></div>
+    <div id="tags"></div>
+    <div class="hint">虚线＝快船航段，实线＝陆路（直连示意，非导航实路径）。点击地图标记可看详情；底图加载失败会自动换源。</div>
+  </div>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+var DAYS=[
+ {n:1,d:"9/27 周日",c:"#4cc9f0",t:"抵达 + 仓古",s:"07:20 落地 DPS → 仓古寄存行李 → La Brisa 集市 → 海边日落"},
+ {n:2,d:"9/28 周一",c:"#4895ef",t:"仓古 / 水明漾",s:"上午冲浪课 → 下午水明漾 shopping → 晚上 SPA"},
+ {n:3,d:"9/29 周二",c:"#4361ee",t:"乌鲁瓦图 + 南部",s:"滑翔伞 → Melasti Beach → Malini 悬崖餐厅 → Kecak 火舞"},
+ {n:4,d:"9/30 周三",c:"#b5179e",t:"仓古 → Sanur",s:"退房转场码头区，踩点确认次日快船，早睡"},
+ {n:5,d:"10/1 周四",c:"#f72585",t:"佩尼达一日往返",s:"07:30 快船 → Manta Point 魔鬼鱼浮潜 → 精灵坠崖 → 17:00 回 Sanur"},
+ {n:6,d:"10/2 周五",c:"#ffd166",t:"Sanur → 金巴兰（婚礼）",s:"上午转场金巴兰 → ★下午朋友婚礼（固定）→ 晚宴 → 夜车回乌布"},
+ {n:7,d:"10/3 周六",c:"#06d6a0",t:"乌布全天",s:"睡饱 → ATV 越野 → 银饰 DIY / 乌布漫游 → SPA 或音疗"},
+ {n:8,d:"10/4 周日",c:"#ff9f1c",t:"乌布 → 回程",s:"咖啡店 + 伴手礼 → 16:30 出发 DPS → 19:50 起飞"}
+];
+var P={
+ dps:{ll:[-8.7482,115.1672],name:"DPS 伍拉赖国际机场",info:"9/27 07:20 抵达｜10/4 19:50 起飞"},
+ canggu:{ll:[-8.6478,115.1385],name:"仓古 Canggu",info:"9/27–9/30 住宿（Haus Flora by GRUN）"},
+ labrisa:{ll:[-8.6538,115.1265],name:"La Brisa 仓库集市",info:"D1 中午，9/27 周日有集市"},
+ seminyak:{ll:[-8.6905,115.1683],name:"水明漾 Seminyak",info:"D2 下午 shopping"},
+ uluwatu:{ll:[-8.8291,115.0849],name:"乌鲁瓦图 Uluwatu",info:"D3 晚：Kecak 火舞 / 情人崖日落"},
+ melasti:{ll:[-8.8481,115.1626],name:"Melasti Beach",info:"D3 中午：玻璃海 + 白沙滩"},
+ jimbaran:{ll:[-8.7906,115.1668],name:"金巴兰 Jimbaran ★婚礼",info:"<b>10/2 下午：朋友婚礼（固定行程）</b><br>晚上婚宴 / 海边海鲜，之后夜车回乌布",wed:1},
+ sanur:{ll:[-8.6862,115.2626],name:"Sanur 快船码头",info:"9/30–10/2 住宿｜10/1 佩尼达上下船"},
+ manta:{ll:[-8.7955,115.4855],name:"Manta Point",info:"D5 上午：魔鬼鱼浮潜"},
+ kling:{ll:[-8.7515,115.4726],name:"精灵坠崖 Kelingking",info:"D5 下午：观景台"},
+ toyapakeh:{ll:[-8.6810,115.4740],name:"Toya Pakeh 码头",info:"佩尼达上岛点，快船约 40 分钟"},
+ ubud:{ll:[-8.5069,115.2625],name:"乌布 Ubud",info:"10/2–10/4 住宿（已预订两晚）"},
+ atv:{ll:[-8.4795,115.2360],name:"乌布 ATV 区域",info:"D7 上午：半天团，需预约"}
+};
+var LEGS=[
+ {d:1,pts:["dps","canggu","labrisa"],boat:0},
+ {d:2,pts:["canggu","seminyak"],boat:0},
+ {d:3,pts:["canggu","melasti","uluwatu"],boat:0},
+ {d:4,pts:["canggu","seminyak","sanur"],boat:0},
+ {d:5,pts:["sanur","toyapakeh"],boat:1},
+ {d:5,pts:["toyapakeh","manta","kling","toyapakeh"],boat:0},
+ {d:5,pts:["toyapakeh","sanur"],boat:1},
+ {d:6,pts:["sanur","jimbaran"],boat:0},
+ {d:6,pts:["jimbaran","ubud"],boat:0},
+ {d:7,pts:["ubud","atv","ubud"],boat:0},
+ {d:8,pts:["ubud","dps"],boat:0}
+];
+var SRC=[
+ {name:"高德地图",url:"https://wprd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&style=7&x={x}&y={y}&z={z}",sub:"1234",max:18,attr:"高德地图"},
+ {name:"高德卫星",url:"https://wprd0{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}",sub:"1234",max:18,attr:"高德地图"},
+ {name:"Esri 卫星",url:"https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",sub:"abc",max:18,attr:"Esri"},
+ {name:"Carto",url:"https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png",sub:"abcd",max:19,attr:"CARTO / OSM"},
+ {name:"OpenStreetMap",url:"https://tile.openstreetmap.org/{z}/{x}/{y}.png",sub:"abc",max:18,attr:"OpenStreetMap"}
+];
+
+// ---------- 1) 先把侧边栏画出来（不依赖地图库）----------
+function buildPanel(){
+  var lg=document.getElementById("legend"),h="",i;
+  for(i=0;i<DAYS.length;i++){
+    var d=DAYS[i];
+    h+='<div class="day" data-d="'+d.n+'" style="border-left-color:'+d.c+'">'+
+       '<b><span class="pill" style="background:'+d.c+'">D'+d.n+'</span>'+d.d+' · '+d.t+'</b>'+
+       '<span>'+d.s+'</span></div>';
+  }
+  lg.innerHTML=h;
+  document.getElementById("tags").innerHTML=
+    '<span class="tag">Sanur→乌布 1–1.5h</span><span class="tag">Sanur→金巴兰 1–1.5h</span>'+
+    '<span class="tag">金巴兰→乌布 1.5–2h</span><span class="tag">乌布→DPS 1.5–2h</span>'+
+    '<span class="tag">快船约 40min</span>';
+  var sh="",j;
+  for(j=0;j<SRC.length;j++)sh+='<button class="src" data-i="'+j+'">'+SRC[j].name+'</button>';
+  document.getElementById("sources").innerHTML=sh;
+}
+
+// ---------- 2) 再初始化地图 ----------
+function buildMap(){
+  var st=document.getElementById("status");
+  function say(m,keep){st.style.display=m?"block":"none";st.innerHTML=m||"";
+    if(m&&!keep)setTimeout(function(){st.style.display="none"},4500)}
+  if(typeof L==="undefined"){say("地图库加载失败（需要联网），右侧行程仍可查看。",1);return}
+  var map=L.map("map",{scrollWheelZoom:true}).setView([-8.65,115.25],10);
+  var groups={},i;
+  for(i=0;i<DAYS.length;i++)groups[DAYS[i].n]=L.layerGroup().addTo(map);
+  for(i=0;i<LEGS.length;i++){
+    var l=LEGS[i],day=DAYS[l.d-1],lls=[],k;
+    for(k=0;k<l.pts.length;k++)lls.push(P[l.pts[k]].ll);
+    var o={color:day.c,weight:l.boat?3:4,opacity:.95,lineCap:"round"};
+    if(l.boat)o.dashArray="8 8";
+    L.polyline(lls,o).bindTooltip("D"+day.n+" "+day.d+" · "+day.t,{sticky:true}).addTo(groups[l.d]);
+  }
+  var all=[];
+  for(var key in P){
+    var p=P[key];all.push(p.ll);
+    var m=L.circleMarker(p.ll,{radius:p.wed?9:6,color:"#0b1319",weight:2,
+      fillColor:p.wed?"#ffd166":"#ffffff",fillOpacity:1}).addTo(map);
+    m.bindPopup("<b>"+p.name+"</b><br>"+p.info);
+    m.bindTooltip(p.name,{permanent:true,direction:"right",offset:[8,0],className:p.wed?"lbl wed":"lbl"});
+  }
+  map.fitBounds(L.latLngBounds(all).pad(0.12));
+  var cur=null,timer=null;
+  function setSrc(idx,auto){
+    if(idx>=SRC.length){say("所有底图源都无法加载，路线与标记仍可使用。",1);return}
+    var s=SRC[idx],loaded=0;
+    if(cur)map.removeLayer(cur);
+    cur=L.tileLayer(s.url,{subdomains:s.sub,maxZoom:s.max,attribution:s.attr});
+    cur.on("tileload",function(){loaded++;if(loaded===1){clearTimeout(timer);say("")}});
+    cur.addTo(map);
+    clearTimeout(timer);
+    timer=setTimeout(function(){if(loaded===0){say("「"+s.name+"」加载失败，自动换下一个底图…");setSrc(idx+1,1)}},6000);
+    var bs=document.querySelectorAll(".src");
+    for(var b=0;b<bs.length;b++)bs[b].className=(+bs[b].getAttribute("data-i")===idx)?"src on":"src";
+    if(auto)say("已切换到「"+s.name+"」");
+  }
+  var btns=document.querySelectorAll(".src");
+  for(i=0;i<btns.length;i++){
+    (function(b){b.addEventListener("click",function(){setSrc(+b.getAttribute("data-i"),0)})})(btns[i]);
+  }
+  var items=document.querySelectorAll(".day");
+  for(i=0;i<items.length;i++){
+    (function(el){
+      el.addEventListener("click",function(){
+        var n=+el.getAttribute("data-d"),g=groups[n];
+        if(map.hasLayer(g)){map.removeLayer(g);el.className="day off"}
+        else{map.addLayer(g);el.className="day";
+          var bb=L.latLngBounds([]);g.eachLayer(function(x){bb.extend(x.getBounds())});
+          if(bb.isValid())map.fitBounds(bb.pad(0.25));}
+      });
+    })(items[i]);
+  }
+  setSrc(0,0);
+}
+function start(){try{buildPanel()}catch(e){}
+  try{buildMap()}catch(e){
+    var st=document.getElementById("status");
+    st.style.display="block";st.textContent="地图初始化出错："+e.message;}}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start);else start();
+</script>
+</body>
+</html>
