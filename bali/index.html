@@ -194,11 +194,11 @@ var LEGS=[
 ];
 var AMAP="https://wprd0"+"{s}"+".is.autonavi.com/appmaptile";
 var SRC=[
- {name:"高德地图",url:AMAP+"?lang=zh_cn&size=1&style=7&x={x}&y={y}&z={z}",sub:"1234",max:18,attr:"高德地图"},
- {name:"高德卫星",url:AMAP+"?style=6&x={x}&y={y}&z={z}",sub:"1234",max:18,attr:"高德地图"},
- {name:"Esri 卫星",url:"https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/"+"{z}/{y}/{x}",sub:"abc",max:18,attr:"Esri"},
+ {name:"OpenStreetMap",url:"https://tile.openstreetmap.org/"+"{z}/{x}/{y}"+".png",sub:"abc",max:18,attr:"OpenStreetMap"},
  {name:"Carto",url:"https://"+"{s}"+".basemaps.cartocdn.com/rastertiles/voyager/"+"{z}/{x}/{y}"+".png",sub:"abcd",max:19,attr:"CARTO / OSM"},
- {name:"OpenStreetMap",url:"https://tile.openstreetmap.org/"+"{z}/{x}/{y}"+".png",sub:"abc",max:18,attr:"OpenStreetMap"}
+ {name:"Esri 卫星",url:"https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/"+"{z}/{y}/{x}",sub:"abc",max:18,attr:"Esri"},
+ {name:"高德地图",url:AMAP+"?lang=zh_cn&size=1&style=7&x={x}&y={y}&z={z}",sub:"1234",max:18,attr:"高德地图"},
+ {name:"高德卫星",url:AMAP+"?style=6&x={x}&y={y}&z={z}",sub:"1234",max:18,attr:"高德地图"}
 ];
 function gmap(p){return "https://www.google.com/maps/search/?api=1&query="+p.ll[0]+","+p.ll[1]}
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")}
