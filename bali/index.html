@@ -140,9 +140,9 @@ var P={
  kuta:{ll:[-8.7180,115.1686],ty:"play",name:"库塔海滩（冲浪课）",
   sum:"浪型平缓、沙底平整，是新手冲浪入门的经典海滩。",
   tips:["上午浪小，更适合新手","含板＋教练约 2 小时，建议预约","贵重物品不要留在沙滩上"]},
- seminyak:{ll:[-8.6905,115.1683],ty:"shop",name:"水明漾 Seminyak",
-  sum:"设计小店、买手店与 SPA 集中区，Fineline、Saint Tropéz 都在这一带。",
-  tips:["店铺多 10:00 后开门","SPA 建议提前一天预约","傍晚主干道堵车，预留时间"]},
+ seminyak:{ll:[-8.6905,115.1683],ty:"shop",name:"仓古 / 水明漾 Shopping",
+  sum:"仓古与水明漾的设计小店、买手店和甜品集中区：Indigo Luna、Fineline、Saint Tropéz、Blink、Sensatia。",
+  tips:["店铺多 10:00 后开门，按位置顺路取舍","Ballissimo Gelato 可安排下午茶，Large 三球约 75k","傍晚主干道堵车，预留时间"]},
  timbis:{ll:[-8.8478,115.1855],ty:"play",name:"Timbis 滑翔伞点",
   sum:"岛南悬崖起飞场（Riug 等侣飞），沿着海崖飞行，景色开阔。",
   tips:["飞行约 10 分钟，含集合等待需 1.5–2 小时","风力不足/过大会改期，留机动时间","不建议穿裙子，带鱼眼相机绑带"]},
@@ -195,11 +195,13 @@ var DAYS=[
    {tm:"下午",k:"canggu",t:"回民宿休整、泳池",s:"补觉，避开正午暴晒"},
    {tm:"晚上",k:"batubolong",t:"海边日落 + 晚餐",s:"Batu Bolong / Echo Beach 一带"}
   ]},
- {n:2,d:"9/28 周一",c:"#4FB9C9",t:"仓古 / 水明漾",note:"海边活动 + 采购日",
+ {n:2,d:"9/28 周一",c:"#4FB9C9",t:"仓古 / 水明漾",note:"冲浪 + 银饰 DIY + Shopping",
   items:[
    {tm:"上午",k:"kuta",t:"冲浪课",s:"新手建议上午浪小时下水，需预约"},
-   {tm:"下午",k:"seminyak",t:"水明漾 Shopping",s:"Fineline、Saint Tropéz 等"},
-   {tm:"晚上",k:"seminyak",t:"SPA / Massage",s:"提前一天预约"}
+   {tm:"11:30–13:30",k:"canggu",t:"双人银饰制作课",s:"Big Tree Couples Silversmithing Class；需预约，待确认 mzq 是否参加"},
+   {tm:"下午",k:"seminyak",t:"仓古 / 水明漾 Shopping",s:"仓古 Indigo Luna；水明漾 Fineline、Saint Tropéz、Blink、Sensatia，按位置取舍"},
+   {tm:"下午茶",k:"seminyak",t:"Ballissimo Gelato",s:"Large 三球约 75k；推荐 tiramisu、hazelnut、passionfruit yoghurt"},
+   {tm:"晚上",t:"晚餐 / 自由活动",s:"SPA 调整至 10/3 晚上"}
   ]},
  {n:3,d:"9/29 周二",c:"#BF8EDA",t:"乌鲁瓦图 + 南部",note:"南岛一日，建议包车",
   items:[
@@ -234,12 +236,12 @@ var DAYS=[
    {tm:"晚上",k:"jimbaran",t:"婚宴 / 海边海鲜晚餐",s:"若婚礼不含晚宴，可就近吃烧烤"},
    {tm:"21:00",k:"ubud",t:"夜车回乌布酒店",s:"约 1.5–2 小时；提前告知酒店 late check-in"}
   ]},
- {n:7,d:"10/3 周六",c:"#DF84A8",t:"乌布全天",note:"前一晚夜车，早上不排团",
+ {n:7,d:"10/3 周六",c:"#DF84A8",t:"乌布全天",note:"ATV + 乌布漫游 + SPA",
   items:[
-   {tm:"早上",k:"yoga",t:"酒店早餐（可选 Yoga Barn 晨课）",s:"睡饱一点再出发"},
+   {tm:"早上",k:"yoga",t:"酒店早餐（可选 Yoga Barn 晨课）",s:"前一晚夜车，睡饱一点再出发"},
    {tm:"上午",k:"atv",t:"ATV 越野摩托",s:"半天团，会很脏，带换洗衣物；需预约"},
-   {tm:"下午",k:"celuk",t:"银饰 DIY 或 乌布漫游",s:"银饰约 2–3 小时需预约；或皇宫/市集/稻田"},
-   {tm:"晚上",k:"ubud",t:"SPA 或 音疗",s:"旺季建议提前 3 天预约"}
+   {tm:"下午",k:"ubud",t:"乌布漫游 + Seniman Coffee Studio",s:"皇宫 / 市集 / 稻田；Seniman 有咖啡、黑胶、磁带、杂志、周边及当地艺术作品"},
+   {tm:"19:00–21:30",k:"ubud",t:"Putri Bali Spa 双人套餐",s:"拿到电话卡后预约两人；时段暂定 19:00–21:30"}
   ]},
  {n:8,d:"10/4 周日",c:"#E97366",t:"乌布 → 回程",note:"全部行程 17:00 前结束",
   items:[
